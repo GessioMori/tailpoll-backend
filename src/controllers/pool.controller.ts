@@ -1,5 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { Pool } from '@prisma/client';
+import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { PoolService } from 'src/services/pool.service';
 
 @Controller()
@@ -10,12 +10,14 @@ export class PoolController {
   async createPool(
     @Body()
     poolData: {
-      creatorToken?: string;
       question: string;
       options: string[];
     },
-  ): Promise<Pool> {
-    const { creatorToken, question, options } = poolData;
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { question, options } = poolData;
+    const { creatorToken } = request.signedCookies;
 
     const newPool = await this.poolService.createPool({
       creatorToken,
@@ -23,18 +25,26 @@ export class PoolController {
       question,
     });
 
+    if (!creatorToken) {
+      response.cookie('creatorToken', newPool.creatorToken, {
+        httpOnly: true,
+        maxAge: 999999999,
+        sameSite: 'lax',
+        secure: false,
+        signed: true,
+      });
+    }
+
     return newPool;
   }
 
-  @Post('pool')
-  async getPool(
-    @Body()
-    poolData: {
-      poolId: string;
-    },
-  ): Promise<Pool | null> {
-    const { poolId } = poolData;
+  @Get('pool/:id')
+  async getPool(@Param('id') id: string, @Req() request: Request) {
+    const pool = await this.poolService.getPool({ poolId: id });
 
-    return this.poolService.getPool({ poolId });
+    return {
+      pool,
+      isOwner: pool?.creatorToken === request.signedCookies.creatorToken,
+    };
   }
 }
