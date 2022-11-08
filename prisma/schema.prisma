@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pool {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  endsAt DateTime?
+  creatorToken String @db.VarChar(300) @default(cuid())
+  question String @db.VarChar(3000)
+  options String[]
+  votes Vote[]
+
+  @@map("pool")
+  @@index([creatorToken])
+}
+
+model Vote {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  voterToken String @db.VarChar(300)
+  option Int
+  poolId String
+  pool Pool @relation(fields: [poolId], references: [id])
+
+  @@map("vote")
+  @@index([voterToken])
+  @@index([poolId])
+  @@unique([voterToken, poolId])
+}
