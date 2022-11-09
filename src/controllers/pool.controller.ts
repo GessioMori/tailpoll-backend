@@ -26,17 +26,17 @@ export class PoolController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const { question, options, endsAt } = createPoolDto;
-    const { creatorToken } = request.signedCookies;
+    const { userToken } = request.signedCookies;
 
     const newPool = await this.poolService.createPool({
-      creatorToken,
+      creatorToken: userToken,
       options,
       question,
       endsAt,
     });
 
-    if (!creatorToken) {
-      response.cookie('creatorToken', newPool.creatorToken, {
+    if (!userToken) {
+      response.cookie('userToken', newPool.creatorToken, {
         httpOnly: true,
         sameSite: 'lax',
         secure: false,

@@ -15,7 +15,7 @@ export class PoolService {
 
     const newPool = await this.prisma.pool.create({
       data: {
-        ...(creatorToken ? { creatorToken } : {}),
+        creatorToken,
         endsAt,
         question,
         options,

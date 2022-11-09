@@ -23,7 +23,7 @@ model Pool {
 model Vote {
   id String @id @default(cuid())
   createdAt DateTime @default(now())
-  voterToken String @db.VarChar(300)
+  voterToken String @db.VarChar(300) @default(cuid())
   option Int
   poolId String
   pool Pool @relation(fields: [poolId], references: [id])
