@@ -58,4 +58,19 @@ export class VoteService {
 
     return vote;
   }
+
+  async getUserVote(params: { voterToken: string; poolId: string }) {
+    const { voterToken, poolId } = params;
+
+    const vote = await this.prisma.vote.findUnique({
+      where: {
+        voterToken_poolId: {
+          poolId,
+          voterToken,
+        },
+      },
+    });
+
+    return vote;
+  }
 }

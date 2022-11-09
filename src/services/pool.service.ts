@@ -36,4 +36,22 @@ export class PoolService {
 
     return pool;
   }
+
+  async getResults(params: { poolId: string }) {
+    const { poolId } = params;
+
+    const poolResults = await this.prisma.vote.groupBy({
+      where: {
+        poolId,
+      },
+      by: ['option'],
+      _count: true,
+    });
+
+    if (!poolResults) {
+      throw new Error('Pool not found.');
+    }
+
+    return poolResults;
+  }
 }

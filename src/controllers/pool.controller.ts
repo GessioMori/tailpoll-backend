@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   Param,
   Post,
   Req,
@@ -48,12 +49,24 @@ export class PoolController {
   }
 
   @Get('pool/:id')
+  @UsePipes(new ValidatorPipe())
   async getPool(@Param('id') id: string, @Req() request: Request) {
     const pool = await this.poolService.getPool({ poolId: id });
 
     return {
       pool,
-      isOwner: pool?.creatorToken === request.signedCookies.creatorToken,
+      isOwner: pool?.creatorToken === request.signedCookies.userToken,
     };
+  }
+
+  @Get('result/:id')
+  @UsePipes(new ValidatorPipe())
+  async getResults(@Param('id') id: string) {
+    try {
+      const results = await this.poolService.getResults({ poolId: id });
+      return results;
+    } catch (error) {
+      throw new HttpException(error.message, 400);
+    }
   }
 }

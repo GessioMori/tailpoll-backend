@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   Param,
   Post,
@@ -48,5 +49,18 @@ export class VoteController {
     } catch (error) {
       throw new HttpException(error.message, 400);
     }
+  }
+
+  @Get('vote/:id')
+  @UsePipes(new ValidatorPipe())
+  async getUserVote(@Param('id') id: string, @Req() request: Request) {
+    const { userToken } = request.signedCookies;
+
+    const userVote = await this.voteService.getUserVote({
+      poolId: id,
+      voterToken: userToken,
+    });
+
+    return userVote;
   }
 }
