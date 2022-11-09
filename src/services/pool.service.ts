@@ -9,12 +9,14 @@ export class PoolService {
     creatorToken?: string;
     question: string;
     options: string[];
+    endsAt?: Date;
   }) {
-    const { creatorToken, question, options } = params;
+    const { creatorToken, question, options, endsAt } = params;
 
     const newPool = await this.prisma.pool.create({
       data: {
         ...(creatorToken ? { creatorToken } : {}),
+        endsAt,
         question,
         options,
       },
