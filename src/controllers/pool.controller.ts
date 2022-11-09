@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -65,6 +67,40 @@ export class PoolController {
     try {
       const results = await this.poolService.getResults({ poolId: id });
       return results;
+    } catch (error) {
+      throw new HttpException(error.message, 400);
+    }
+  }
+
+  @Patch('pool/:id')
+  @UsePipes(new ValidatorPipe())
+  async endPool(@Param('id') id: string, @Req() request: Request) {
+    const { userToken } = request.signedCookies;
+
+    try {
+      const updatedPool = await this.poolService.endPool({
+        poolId: id,
+        userToken,
+      });
+
+      return updatedPool;
+    } catch (error) {
+      throw new HttpException(error.message, 400);
+    }
+  }
+
+  @Delete('pool/:id')
+  @UsePipes(new ValidatorPipe())
+  async deletePool(@Param('id') id: string, @Req() request: Request) {
+    const { userToken } = request.signedCookies;
+
+    try {
+      const deletedPool = await this.poolService.endPool({
+        poolId: id,
+        userToken,
+      });
+
+      return deletedPool;
     } catch (error) {
       throw new HttpException(error.message, 400);
     }

@@ -54,4 +54,55 @@ export class PoolService {
 
     return poolResults;
   }
+
+  async endPool(params: { poolId: string; userToken: string }) {
+    const { poolId, userToken } = params;
+
+    const pool = await this.prisma.pool.findUnique({
+      where: {
+        id: poolId,
+      },
+    });
+
+    if (!pool) {
+      throw new Error('Pool not found');
+    } else if (pool.creatorToken !== userToken) {
+      throw new Error('Not allowed.');
+    }
+
+    const updatedPool = await this.prisma.pool.update({
+      where: {
+        id: pool.id,
+      },
+      data: {
+        endsAt: new Date(),
+      },
+    });
+
+    return updatedPool;
+  }
+
+  async deletePool(params: { poolId: string; userToken: string }) {
+    const { poolId, userToken } = params;
+
+    const pool = await this.prisma.pool.findUnique({
+      where: {
+        id: poolId,
+      },
+    });
+
+    if (!pool) {
+      throw new Error('Pool not found');
+    } else if (pool.creatorToken !== userToken) {
+      throw new Error('Not allowed.');
+    }
+
+    const deletedPool = await this.prisma.pool.delete({
+      where: {
+        id: poolId,
+      },
+    });
+
+    return deletedPool;
+  }
 }
