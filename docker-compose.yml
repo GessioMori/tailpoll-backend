@@ -15,11 +15,5 @@ services:
       - pgdata:/data/postgres
     network_mode: host
 
-  redis:
-    image: redis:alpine
-    restart: always
-    ports:
-      - ${REDIS_PORT}:6379
-
 volumes:
   pgdata:
