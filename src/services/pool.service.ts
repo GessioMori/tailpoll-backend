@@ -64,6 +64,9 @@ export class PoolService {
       },
     });
 
+    console.log('pool:', pool?.creatorToken);
+    console.log('req:', userToken);
+
     if (!pool) {
       throw new Error('Pool not found');
     } else if (pool.creatorToken !== userToken) {

@@ -12,7 +12,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { PoolService } from 'src/services/pool.service';
+import { PoolService } from '../services/pool.service';
 import { CreatePoolDto, PoolSchema } from './dto/pool.dto';
 import { ValidatorPipe } from './validation.pipe';
 
@@ -95,7 +95,7 @@ export class PoolController {
     const { userToken } = request.signedCookies;
 
     try {
-      const deletedPool = await this.poolService.endPool({
+      const deletedPool = await this.poolService.deletePool({
         poolId: id,
         userToken,
       });

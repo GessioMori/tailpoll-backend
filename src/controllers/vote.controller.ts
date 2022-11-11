@@ -10,7 +10,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { VoteService } from 'src/services/vote.service';
+import { VoteService } from '../services/vote.service';
 import { CreateVoteDto, VoteSchema } from './dto/vote.dto';
 import { ValidatorPipe } from './validation.pipe';
 
@@ -55,6 +55,10 @@ export class VoteController {
   @UsePipes(new ValidatorPipe())
   async getUserVote(@Param('id') id: string, @Req() request: Request) {
     const { userToken } = request.signedCookies;
+
+    if (!userToken) {
+      throw new HttpException('Voter not found', 404);
+    }
 
     const userVote = await this.voteService.getUserVote({
       poolId: id,
