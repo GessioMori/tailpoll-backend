@@ -2,27 +2,13 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
+import { mockPrisma, uuid1, uuid2 } from '../../test/utils/prismaMock';
 import { PoolService } from '../services/pool.service';
 import { PrismaService } from '../services/prisma.service';
-import { CreatePoolDto } from './dto/pool.dto';
 import { PoolController } from './pool.controller';
 
 describe('Pool controller', () => {
   let app: INestApplication;
-
-  const uuid1 = '58439dd9-6e79-4b48-8ce1-0b2f12a4f213';
-  const uuid2 = 'cfd8a37d-fa9d-448d-924d-9fef70ab1c1b';
-
-  const mockPrisma = {
-    pool: {
-      create: (args: { data: CreatePoolDto & { creatorToken?: string } }) => ({
-        ...args.data,
-        creatorToken: args.data.creatorToken ?? uuid1,
-        id: uuid2,
-        createdAt: new Date(),
-      }),
-    },
-  };
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -52,5 +38,68 @@ describe('Pool controller', () => {
     expect(newPool.body).toHaveProperty('options', body.options);
     expect(newPool.body).toHaveProperty('question', body.question);
     expect(newPool.body).toHaveProperty('createdAt');
+  });
+
+  it('should create a new pool with the same user token', async () => {
+    const body = {
+      options: ['opt1', 'opt2'],
+      question: 'question question?',
+    };
+
+    const newPool1 = await request(app.getHttpServer())
+      .post('/pool')
+      .send(body);
+
+    const newPool2 = await request(app.getHttpServer())
+      .post('/pool')
+      .set('Cookie', [newPool1.headers['set-cookie'][0].split(';')[0]])
+      .send(body);
+
+    expect(newPool2.status).toBe(201);
+    expect(newPool2.body.creatorToken).toEqual(newPool1.body.creatorToken);
+  });
+
+  it('should get a pool', async () => {
+    const pool = await request(app.getHttpServer()).get('/pool/' + uuid2);
+
+    expect(pool.body.pool.id).toBeTruthy();
+  });
+
+  it('should get a pool with owner informations', async () => {
+    const body = {
+      options: ['opt1', 'opt2'],
+      question: 'question question?',
+    };
+
+    const newPool = await request(app.getHttpServer()).post('/pool').send(body);
+
+    const pool = await request(app.getHttpServer())
+      .get('/pool/' + uuid2)
+      .set('Cookie', [newPool.headers['set-cookie'][0].split(';')[0]]);
+
+    expect(pool.body.isOwner).toBeTruthy();
+  });
+
+  it('should be able to delete a pool only by owner', async () => {
+    const body = {
+      options: ['opt1', 'opt2'],
+      question: 'question question?',
+    };
+
+    const newPool = await request(app.getHttpServer()).post('/pool').send(body);
+
+    const updatedPool = await request(app.getHttpServer())
+      .delete('/pool/' + uuid2)
+      .set('Cookie', [newPool.headers['set-cookie'][0].split(';')[0]]);
+
+    expect(updatedPool.body.id).toBeTruthy();
+  });
+
+  it('should be able to get pool results', async () => {
+    const poolResults = await request(app.getHttpServer()).get(
+      '/result/' + uuid2,
+    );
+
+    expect(poolResults.body).toHaveLength(2);
   });
 });

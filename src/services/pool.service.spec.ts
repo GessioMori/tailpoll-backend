@@ -1,61 +1,12 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreatePoolDto } from '../controllers/dto/pool.dto';
+import { mockPrisma, uuid1, uuid2 } from '../../test/utils/prismaMock';
 import { PoolService } from '../services/pool.service';
 import { PrismaService } from '../services/prisma.service';
 
 describe('Pool service', () => {
   let app: INestApplication;
   let poolService: PoolService;
-
-  const uuid1 = '58439dd9-6e79-4b48-8ce1-0b2f12a4f213';
-  const uuid2 = 'cfd8a37d-fa9d-448d-924d-9fef70ab1c1b';
-
-  const mockPrisma = {
-    pool: {
-      create: (args: { data: CreatePoolDto & { creatorToken?: string } }) => ({
-        ...args.data,
-        creatorToken: args.data.creatorToken ?? uuid1,
-        id: uuid2,
-        createdAt: new Date(),
-      }),
-      findUnique: (args: { where: { id: string } }) => ({
-        creatorToken: uuid1,
-        question: 'question question?',
-        options: ['opt1', 'opt2'],
-        id: args.where.id,
-        createdAt: '2022-11-11T11:00:10.851Z',
-        ...(args.where.id === uuid2 ? { endsAt: new Date() } : {}),
-      }),
-      update: (args: {
-        where: {
-          id: string;
-        };
-        data: {
-          endsAt: Date;
-        };
-      }) => ({
-        creatorToken: uuid1,
-        question: 'question question?',
-        options: ['opt1', 'opt2'],
-        id: args.where.id,
-        createdAt: '2022-11-11T11:00:10.851Z',
-        endsAt: new Date(),
-      }),
-      delete: (args: {
-        where: {
-          id: string;
-        };
-      }) => ({
-        creatorToken: uuid1,
-        question: 'question question?',
-        options: ['opt1', 'opt2'],
-        id: args.where.id,
-        createdAt: '2022-11-11T11:00:10.851Z',
-        endsAt: new Date(),
-      }),
-    },
-  };
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
