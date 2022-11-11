@@ -20,13 +20,9 @@ export class VoteService {
 
     if (!pool) {
       throw new Error('Pool not found.');
-    }
-
-    if (pool.options.length - 1 < voteOption) {
+    } else if (pool.options.length - 1 < voteOption) {
       throw new Error('Invalid option.');
-    }
-
-    if (pool.endsAt && pool.endsAt.getTime < new Date().getTime) {
+    } else if (pool.endsAt && pool.endsAt.getTime() < new Date().getTime()) {
       throw new Error('Pool already ended.');
     }
 

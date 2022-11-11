@@ -64,13 +64,12 @@ export class PoolService {
       },
     });
 
-    console.log('pool:', pool?.creatorToken);
-    console.log('req:', userToken);
-
     if (!pool) {
       throw new Error('Pool not found');
     } else if (pool.creatorToken !== userToken) {
       throw new Error('Not allowed.');
+    } else if (pool.endsAt) {
+      throw new Error('Pool already ended.');
     }
 
     const updatedPool = await this.prisma.pool.update({

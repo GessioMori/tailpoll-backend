@@ -65,6 +65,10 @@ export class VoteController {
       voterToken: userToken,
     });
 
+    if (!userVote) {
+      throw new HttpException('Vote not found', 404);
+    }
+
     return userVote;
   }
 }

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -55,6 +56,10 @@ export class PoolController {
   async getPool(@Param('id') id: string, @Req() request: Request) {
     const pool = await this.poolService.getPool({ poolId: id });
 
+    if (!pool) {
+      throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    }
+
     return {
       pool,
       isOwner: pool?.creatorToken === request.signedCookies.userToken,
@@ -68,7 +73,7 @@ export class PoolController {
       const results = await this.poolService.getResults({ poolId: id });
       return results;
     } catch (error) {
-      throw new HttpException(error.message, 400);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -85,7 +90,7 @@ export class PoolController {
 
       return updatedPool;
     } catch (error) {
-      throw new HttpException(error.message, 400);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -102,7 +107,7 @@ export class PoolController {
 
       return deletedPool;
     } catch (error) {
-      throw new HttpException(error.message, 400);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 }
