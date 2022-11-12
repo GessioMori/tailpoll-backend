@@ -2,17 +2,28 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
-    branches: ["main"]
+    branches: ['main']
 
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
 
       - name: Copy files
         uses: appleboy/scp-action@master
@@ -21,8 +32,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
-          source: "."
-          target: "~/tailpool"
+          source: '.'
+          target: '~/tailpool'
 
       - name: Test API command
         uses: appleboy/ssh-action@master
@@ -33,5 +44,8 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ~/tailpool
-            npm i
+            npx prisma migrate deploy
+            npm ci
             npm run build
+            npm run test
+            pm2 restart tailpool
