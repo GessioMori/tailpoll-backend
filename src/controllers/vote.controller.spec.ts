@@ -24,6 +24,8 @@ describe('Pool controller', () => {
     await app.init();
   });
 
+  afterAll(() => setTimeout(() => process.exit(), 1000));
+
   it('should create a new vote', async () => {
     const body = {
       option: 1,

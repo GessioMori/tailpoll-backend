@@ -21,6 +21,8 @@ describe('Pool service', () => {
     poolService = app.get<PoolService>(PoolService);
   });
 
+  afterAll(() => setTimeout(() => process.exit(), 1000));
+
   it('should create a new pool', async () => {
     const options = ['opt1', 'opt2'];
     const question = 'question question?';
