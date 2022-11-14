@@ -4,14 +4,15 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Param,
   Post,
+  Query,
   Req,
   Res,
   UsePipes,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { VoteService } from '../services/vote.service';
+import { cookieConfig } from '../utils/cookieConfig';
 import { CreateVoteDto, VoteSchema } from './dto/vote.dto';
 import { ValidatorPipe } from './validation.pipe';
 
@@ -19,10 +20,10 @@ import { ValidatorPipe } from './validation.pipe';
 export class VoteController {
   constructor(private readonly voteService: VoteService) {}
 
-  @Post('vote/:id')
+  @Post('vote')
   @UsePipes(new ValidatorPipe(VoteSchema))
   async vote(
-    @Param('id') id: string,
+    @Query() query: { id: string },
     @Body() body: CreateVoteDto,
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
@@ -32,18 +33,13 @@ export class VoteController {
 
     try {
       const vote = await this.voteService.createVote({
-        poolId: id,
+        poolId: query.id,
         voteOption: option,
         voterToken: userToken,
       });
 
       if (!userToken) {
-        response.cookie('userToken', vote.voterToken, {
-          httpOnly: true,
-          sameSite: 'lax',
-          secure: false,
-          signed: true,
-        });
+        response.cookie('userToken', vote.voterToken, cookieConfig);
       }
 
       return vote;
@@ -52,9 +48,9 @@ export class VoteController {
     }
   }
 
-  @Get('vote/:id')
+  @Get('vote')
   @UsePipes(new ValidatorPipe())
-  async getUserVote(@Param('id') id: string, @Req() request: Request) {
+  async getUserVote(@Query() query: { id: string }, @Req() request: Request) {
     const { userToken } = request.signedCookies;
 
     if (!userToken) {
@@ -62,7 +58,7 @@ export class VoteController {
     }
 
     const userVote = await this.voteService.getUserVote({
-      poolId: id,
+      poolId: query.id,
       voterToken: userToken,
     });
 

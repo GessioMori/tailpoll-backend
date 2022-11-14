@@ -5,15 +5,16 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Param,
   Patch,
   Post,
+  Query,
   Req,
   Res,
   UsePipes,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PoolService } from '../services/pool.service';
+import { cookieConfig } from '../utils/cookieConfig';
 import { CreatePoolDto, PoolSchema } from './dto/pool.dto';
 import { ValidatorPipe } from './validation.pipe';
 
@@ -40,21 +41,16 @@ export class PoolController {
     });
 
     if (!userToken) {
-      response.cookie('userToken', newPool.creatorToken, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: false,
-        signed: true,
-      });
+      response.cookie('userToken', newPool.creatorToken, cookieConfig);
     }
 
     return newPool;
   }
 
-  @Get('pool/:id')
+  @Get('pool')
   @UsePipes(new ValidatorPipe())
-  async getPool(@Param('id') id: string, @Req() request: Request) {
-    const pool = await this.poolService.getPool({ poolId: id });
+  async getPool(@Query() query: { id: string }, @Req() request: Request) {
+    const pool = await this.poolService.getPool({ poolId: query.id });
 
     if (!pool) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
@@ -66,25 +62,25 @@ export class PoolController {
     };
   }
 
-  @Get('result/:id')
+  @Get('result')
   @UsePipes(new ValidatorPipe())
-  async getResults(@Param('id') id: string) {
+  async getResults(@Query() query: { id: string }) {
     try {
-      const results = await this.poolService.getResults({ poolId: id });
+      const results = await this.poolService.getResults({ poolId: query.id });
       return results;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
-  @Patch('pool/:id')
+  @Patch('pool')
   @UsePipes(new ValidatorPipe())
-  async endPool(@Param('id') id: string, @Req() request: Request) {
+  async endPool(@Query() query: { id: string }, @Req() request: Request) {
     const { userToken } = request.signedCookies;
 
     try {
       const updatedPool = await this.poolService.endPool({
-        poolId: id,
+        poolId: query.id,
         userToken,
       });
 
@@ -94,18 +90,22 @@ export class PoolController {
     }
   }
 
-  @Delete('pool/:id')
+  @Delete('pool')
   @UsePipes(new ValidatorPipe())
-  async deletePool(@Param('id') id: string, @Req() request: Request) {
+  async deletePool(
+    @Query() query: { id: string },
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     const { userToken } = request.signedCookies;
 
     try {
-      const deletedPool = await this.poolService.deletePool({
-        poolId: id,
+      await this.poolService.deletePool({
+        poolId: query.id,
         userToken,
       });
 
-      return deletedPool;
+      response.status(HttpStatus.NO_CONTENT);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

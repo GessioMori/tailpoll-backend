@@ -19,8 +19,8 @@ export class ValidatorPipe implements PipeTransform {
         }));
         throw new BadRequestException(errorMessages);
       }
-    } else if (metadata.type === 'param') {
-      const result = z.string().cuid().safeParse(value);
+    } else if (metadata.type === 'query') {
+      const result = z.string().cuid().safeParse(value.id);
 
       if (!result.success) {
         throw new BadRequestException('Invalid ID.');

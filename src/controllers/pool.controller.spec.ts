@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
@@ -62,7 +62,7 @@ describe('Pool controller', () => {
   });
 
   it('should get a pool', async () => {
-    const pool = await request(app.getHttpServer()).get('/pool/' + uuid2);
+    const pool = await request(app.getHttpServer()).get('/pool/?id=' + uuid2);
 
     expect(pool.body.pool.id).toBeTruthy();
   });
@@ -76,7 +76,7 @@ describe('Pool controller', () => {
     const newPool = await request(app.getHttpServer()).post('/pool').send(body);
 
     const pool = await request(app.getHttpServer())
-      .get('/pool/' + uuid2)
+      .get('/pool/?id=' + uuid2)
       .set('Cookie', [newPool.headers['set-cookie'][0].split(';')[0]]);
 
     expect(pool.body.isOwner).toBeTruthy();
@@ -91,15 +91,15 @@ describe('Pool controller', () => {
     const newPool = await request(app.getHttpServer()).post('/pool').send(body);
 
     const updatedPool = await request(app.getHttpServer())
-      .delete('/pool/' + uuid2)
+      .delete('/pool/?id=' + uuid2)
       .set('Cookie', [newPool.headers['set-cookie'][0].split(';')[0]]);
 
-    expect(updatedPool.body.id).toBeTruthy();
+    expect(updatedPool.status).toEqual(HttpStatus.NO_CONTENT);
   });
 
   it('should be able to get pool results', async () => {
     const poolResults = await request(app.getHttpServer()).get(
-      '/result/' + uuid2,
+      '/result/?id=' + uuid2,
     );
 
     expect(poolResults.body).toHaveLength(2);

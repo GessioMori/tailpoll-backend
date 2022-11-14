@@ -32,7 +32,7 @@ describe('Pool controller', () => {
     };
 
     const newVote = await request(app.getHttpServer())
-      .post('/vote/' + uuid3)
+      .post('/vote/?id=' + uuid3)
       .send(body);
 
     expect(newVote.status).toBe(201);
@@ -44,11 +44,11 @@ describe('Pool controller', () => {
     };
 
     const newVote = await request(app.getHttpServer())
-      .post('/vote/' + uuid3)
+      .post('/vote/?id=' + uuid3)
       .send(body);
 
     const vote = await request(app.getHttpServer())
-      .get('/vote/' + uuid3)
+      .get('/vote/?id=' + uuid3)
       .set('Cookie', [newVote.headers['set-cookie'][0].split(';')[0]]);
 
     expect(vote.body.option).toEqual(newVote.body.option);
@@ -60,7 +60,7 @@ describe('Pool controller', () => {
     };
 
     const newVote = await request(app.getHttpServer())
-      .post('/vote/' + uuid3)
+      .post('/vote/?id=' + uuid3)
       .send(body);
 
     const votes = await request(app.getHttpServer())
