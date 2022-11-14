@@ -12,16 +12,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.x]
-
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16
       - run: touch .env
       - run: echo COOKIE_SECRET=${{ secrets.COOKIE_SECRET }} >> .env
       - run: npm ci
@@ -38,7 +34,7 @@ jobs:
           source: '.'
           target: '~/tailpool'
 
-      - name: Test API command
+      - name: TBuild and run server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -47,8 +43,8 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ~/tailpool
-            npx prisma migrate deploy
+            cp ../env/tailpool/.env ./
             npm ci
+            npx prisma migrate deploy
             npm run build
-            npm run test
             pm2 restart tailpool

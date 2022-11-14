@@ -27,7 +27,7 @@ describe('Vote service', () => {
     voteService = app.get<VoteService>(VoteService);
   });
 
-  afterAll(() => setTimeout(() => process.exit(), 1000));
+  afterAll(async () => await app.close());
 
   it('should create a new vote for unidentified user', async () => {
     const vote = await voteService.createVote({ poolId: uuid4, voteOption: 1 });
