@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockPrisma, uuid1, uuid2 } from '../../test/utils/prismaMock';
+import { mockPrisma, uuid1, uuid2, uuid4 } from '../../test/utils/prismaMock';
 import { PoolService } from '../services/pool.service';
 import { PrismaService } from '../services/prisma.service';
 
@@ -74,5 +74,11 @@ describe('Pool service', () => {
           userToken: uuid2,
         }),
     ).rejects.toThrowError('Not allowed.');
+  });
+
+  it('should be able to get all user pools', async () => {
+    const pools = await poolService.getUserPools({ userToken: uuid4 });
+
+    expect(pools).toHaveLength(2);
   });
 });

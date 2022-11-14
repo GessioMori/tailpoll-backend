@@ -104,4 +104,24 @@ describe('Pool controller', () => {
 
     expect(poolResults.body).toHaveLength(2);
   });
+
+  it('should be able to get all user pools', async () => {
+    const body = {
+      options: ['opt1', 'opt2'],
+      question: 'question question?',
+    };
+
+    const newPool = await request(app.getHttpServer()).post('/pool').send(body);
+
+    const pools = await request(app.getHttpServer())
+      .get('/pools')
+      .set('Cookie', [newPool.headers['set-cookie'][0].split(';')[0]]);
+
+    expect(pools.body).toHaveLength(2);
+  });
+
+  it('should get an empty array when there is no cookie', async () => {
+    const poolsError = await request(app.getHttpServer()).get('/pools');
+    expect(poolsError.body.message).toEqual('User not found');
+  });
 });

@@ -53,4 +53,25 @@ describe('Pool controller', () => {
 
     expect(vote.body.option).toEqual(newVote.body.option);
   });
+
+  it('should be able to get all user votes', async () => {
+    const body = {
+      option: 1,
+    };
+
+    const newVote = await request(app.getHttpServer())
+      .post('/vote/' + uuid3)
+      .send(body);
+
+    const votes = await request(app.getHttpServer())
+      .get('/votes')
+      .set('Cookie', [newVote.headers['set-cookie'][0].split(';')[0]]);
+
+    expect(votes.body).toHaveLength(2);
+  });
+
+  it('should get an empty array when there is no cookie', async () => {
+    const votesError = await request(app.getHttpServer()).get('/votes');
+    expect(votesError.body.message).toEqual('Voter not found');
+  });
 });

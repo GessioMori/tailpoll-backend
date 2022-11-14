@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpException,
+  HttpStatus,
   Param,
   Post,
   Req,
@@ -47,7 +48,7 @@ export class VoteController {
 
       return vote;
     } catch (error) {
-      throw new HttpException(error.message, 400);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -57,7 +58,7 @@ export class VoteController {
     const { userToken } = request.signedCookies;
 
     if (!userToken) {
-      throw new HttpException('Voter not found', 404);
+      throw new HttpException('Voter not found', HttpStatus.BAD_REQUEST);
     }
 
     const userVote = await this.voteService.getUserVote({
@@ -66,9 +67,25 @@ export class VoteController {
     });
 
     if (!userVote) {
-      throw new HttpException('Vote not found', 404);
+      throw new HttpException('Vote not found', HttpStatus.NOT_FOUND);
     }
 
     return userVote;
+  }
+
+  @Get('votes')
+  async getUserVotes(@Req() request: Request) {
+    const { userToken } = request.signedCookies;
+
+    if (!userToken) {
+      throw new HttpException('Voter not found', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const votes = await this.voteService.getUserVotes({ userToken });
+      return votes;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }

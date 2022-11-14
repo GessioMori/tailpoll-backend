@@ -107,4 +107,19 @@ export class PoolService {
 
     return deletedPool;
   }
+
+  async getUserPools(params: { userToken: string }) {
+    const { userToken } = params;
+
+    const pools = await this.prisma.pool.findMany({
+      where: {
+        creatorToken: userToken,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return pools;
+  }
 }

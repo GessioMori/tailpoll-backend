@@ -69,4 +69,19 @@ export class VoteService {
 
     return vote;
   }
+
+  async getUserVotes(params: { userToken: string }) {
+    const { userToken } = params;
+
+    const votes = await this.prisma.vote.findMany({
+      where: {
+        voterToken: userToken,
+      },
+      include: {
+        pool: true,
+      },
+    });
+
+    return votes;
+  }
 }

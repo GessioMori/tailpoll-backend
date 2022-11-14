@@ -110,4 +110,21 @@ export class PoolController {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Get('pools')
+  async getUserPools(@Req() request: Request) {
+    const { userToken } = request.signedCookies;
+
+    if (!userToken) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const pools = await this.poolService.getUserPools({ userToken });
+
+      return pools;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

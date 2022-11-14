@@ -71,4 +71,10 @@ describe('Vote service', () => {
         }),
     ).rejects.toThrowError('User already voted.');
   });
+
+  it('should get all user votes', async () => {
+    const votes = await voteService.getUserVotes({ userToken: uuid1 });
+
+    expect(votes).toHaveLength(2);
+  });
 });
