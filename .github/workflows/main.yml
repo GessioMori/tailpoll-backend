@@ -32,7 +32,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
           source: '., !./node_modules, !./dist'
-          target: '~/tailpoll'
+          target: '~/tailpoll-backend'
 
       - name: TBuild and run server
         uses: appleboy/ssh-action@master
@@ -42,9 +42,9 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ~/tailpoll
-            cp ../env/tailpoll/.env ./
+            cd ~/tailpoll-backend
+            cp ../env/tailpoll-backend/.env ./
             npm ci
             npx prisma migrate deploy
             npm run build
-            pm2 restart tailpoll
+            pm2 restart tailpoll-backend
