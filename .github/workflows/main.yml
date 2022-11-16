@@ -23,7 +23,7 @@ jobs:
       - run: npm ci
       - run: npm run build --if-present
       - run: npm test
-      
+
       - name: Copy files
         uses: appleboy/scp-action@master
         with:
@@ -32,7 +32,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
           source: '., !./node_modules, !./dist'
-          target: '~/tailpool'
+          target: '~/tailpoll'
 
       - name: TBuild and run server
         uses: appleboy/ssh-action@master
@@ -42,9 +42,9 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ~/tailpool
-            cp ../env/tailpool/.env ./
+            cd ~/tailpoll
+            cp ../env/tailpoll/.env ./
             npm ci
             npx prisma migrate deploy
             npm run build
-            pm2 restart tailpool
+            pm2 restart tailpoll

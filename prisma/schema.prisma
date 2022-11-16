@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Pool {
+model Poll {
   id String @id @default(cuid())
   createdAt DateTime @default(now())
   endsAt DateTime?
@@ -16,7 +16,7 @@ model Pool {
   options String[]
   votes Vote[]
 
-  @@map("pool")
+  @@map("poll")
   @@index([creatorToken])
 }
 
@@ -25,11 +25,11 @@ model Vote {
   createdAt DateTime @default(now())
   voterToken String @db.VarChar(300) @default(cuid())
   option Int
-  poolId String
-  pool Pool @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  pollId String
+  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
 
   @@map("vote")
   @@index([voterToken])
-  @@index([poolId])
-  @@unique([voterToken, poolId])
+  @@index([pollId])
+  @@unique([voterToken, pollId])
 }

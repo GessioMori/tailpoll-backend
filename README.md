@@ -1,3 +1,3 @@
 ## TailPool Backend
 
-A pool backend service using NestJS.
+A poll backend service using NestJS.

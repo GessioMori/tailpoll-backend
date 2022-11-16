@@ -1,5 +1,5 @@
 import { Vote } from '@prisma/client';
-import { CreatePoolDto } from '../../src/controllers/dto/pool.dto';
+import { CreatePoolDto } from '../../src/controllers/dto/poll.dto';
 
 export const uuid1 = '58439dd96e794b488ce10b2f12a4f213';
 export const uuid2 = 'cfd8a37dfa9d448d924d9fef70ab1c1b';
@@ -11,13 +11,13 @@ const voteResponse1 = {
   createdAt: '2022-11-14T11:22:08.929Z',
   voterToken: 'clagp4iao0003wlsvt3z898a0',
   option: 3,
-  poolId: 'clagouv130001wlinf556uyci',
-  pool: {
+  pollId: 'clagouv130001wlinf556uyci',
+  poll: {
     id: 'clagouv130001wlinf556uyci',
     createdAt: '2022-11-14T11:14:38.871Z',
     endsAt: null,
     creatorToken: 'clagouv130000wlinm15ul5ua',
-    question: 'pool to test votes 4',
+    question: 'poll to test votes 4',
     options: ['opt1', 'opt2', 'opt3', 'opt4'],
   },
 };
@@ -27,19 +27,19 @@ const voteResponse2 = {
   createdAt: '2022-11-14T11:22:22.983Z',
   voterToken: 'clagp4iao0003wlsvt3z898a0',
   option: 3,
-  poolId: 'clagouxzj0004wlina8oie18b',
-  pool: {
+  pollId: 'clagouxzj0004wlina8oie18b',
+  poll: {
     id: 'clagouxzj0004wlina8oie18b',
     createdAt: '2022-11-14T11:14:42.703Z',
     endsAt: null,
     creatorToken: 'clagouv130000wlinm15ul5ua',
-    question: 'pool to test votes 5',
+    question: 'poll to test votes 5',
     options: ['opt1', 'opt2', 'opt3', 'opt4'],
   },
 };
 
 export const mockPrisma = {
-  pool: {
+  poll: {
     findUnique: (args: { where: { id: string } }) => ({
       creatorToken: uuid1,
       question: 'question question?',
@@ -104,19 +104,19 @@ export const mockPrisma = {
   vote: {
     findUnique: (args: {
       where: {
-        voterToken_poolId: {
-          poolId: string;
+        voterToken_pollId: {
+          pollId: string;
           voterToken: string;
         };
       };
     }): Vote | null => {
-      if (args.where.voterToken_poolId.voterToken === uuid2) {
+      if (args.where.voterToken_pollId.voterToken === uuid2) {
         return {
           voterToken: uuid2,
           id: uuid3,
           createdAt: new Date(),
           option: 1,
-          poolId: args.where.voterToken_poolId.poolId,
+          pollId: args.where.voterToken_pollId.pollId,
         };
       }
       return null;
@@ -124,7 +124,7 @@ export const mockPrisma = {
     findMany: () => [voteResponse1, voteResponse2],
     create: (args: {
       data: {
-        poolId: string;
+        pollId: string;
         option: number;
         voterToken?: string;
       };
@@ -132,17 +132,17 @@ export const mockPrisma = {
       createdAt: new Date(),
       id: uuid3,
       option: args.data.option,
-      poolId: args.data.poolId,
+      pollId: args.data.pollId,
       voterToken: args.data.voterToken ?? uuid2,
     }),
     groupBy: (args: {
       where: {
-        poolId: string;
+        pollId: string;
       };
       by: ['option'];
       _count: true;
     }) =>
-      args.where.poolId === uuid2
+      args.where.pollId === uuid2
         ? [
             { option: 0, votes: 1 },
             { option: 1, votes: 2 },

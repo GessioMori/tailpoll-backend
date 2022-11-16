@@ -3,11 +3,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
 import { mockPrisma, uuid1, uuid2 } from '../../test/utils/prismaMock';
-import { PoolService } from '../services/pool.service';
+import { PoolService } from '../services/poll.service';
 import { PrismaService } from '../services/prisma.service';
-import { PoolController } from './pool.controller';
+import { PoolController } from './poll.controller';
 
-describe('Pool controller', () => {
+describe('Poll controller', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
@@ -26,13 +26,13 @@ describe('Pool controller', () => {
 
   afterAll(async () => await app.close());
 
-  it('should create a new pool', async () => {
+  it('should create a new poll', async () => {
     const body = {
       options: ['opt1', 'opt2'],
       question: 'question question?',
     };
 
-    const newPool = await request(app.getHttpServer()).post('/pool').send(body);
+    const newPool = await request(app.getHttpServer()).post('/poll').send(body);
 
     expect(newPool.status).toBe(201);
     expect(newPool.body).toHaveProperty('creatorToken', uuid1);
@@ -42,18 +42,18 @@ describe('Pool controller', () => {
     expect(newPool.body).toHaveProperty('createdAt');
   });
 
-  it('should create a new pool with the same user token', async () => {
+  it('should create a new poll with the same user token', async () => {
     const body = {
       options: ['opt1', 'opt2'],
       question: 'question question?',
     };
 
     const newPool1 = await request(app.getHttpServer())
-      .post('/pool')
+      .post('/poll')
       .send(body);
 
     const newPool2 = await request(app.getHttpServer())
-      .post('/pool')
+      .post('/poll')
       .set('Cookie', [newPool1.headers['set-cookie'][0].split(';')[0]])
       .send(body);
 
@@ -61,67 +61,67 @@ describe('Pool controller', () => {
     expect(newPool2.body.creatorToken).toEqual(newPool1.body.creatorToken);
   });
 
-  it('should get a pool', async () => {
-    const pool = await request(app.getHttpServer()).get('/pool/?id=' + uuid2);
+  it('should get a poll', async () => {
+    const poll = await request(app.getHttpServer()).get('/poll/?id=' + uuid2);
 
-    expect(pool.body.pool.id).toBeTruthy();
+    expect(poll.body.poll.id).toBeTruthy();
   });
 
-  it('should get a pool with owner informations', async () => {
+  it('should get a poll with owner informations', async () => {
     const body = {
       options: ['opt1', 'opt2'],
       question: 'question question?',
     };
 
-    const newPool = await request(app.getHttpServer()).post('/pool').send(body);
+    const newPool = await request(app.getHttpServer()).post('/poll').send(body);
 
-    const pool = await request(app.getHttpServer())
-      .get('/pool/?id=' + uuid2)
+    const poll = await request(app.getHttpServer())
+      .get('/poll/?id=' + uuid2)
       .set('Cookie', [newPool.headers['set-cookie'][0].split(';')[0]]);
 
-    expect(pool.body.isOwner).toBeTruthy();
+    expect(poll.body.isOwner).toBeTruthy();
   });
 
-  it('should be able to delete a pool only by owner', async () => {
+  it('should be able to delete a poll only by owner', async () => {
     const body = {
       options: ['opt1', 'opt2'],
       question: 'question question?',
     };
 
-    const newPool = await request(app.getHttpServer()).post('/pool').send(body);
+    const newPool = await request(app.getHttpServer()).post('/poll').send(body);
 
     const updatedPool = await request(app.getHttpServer())
-      .delete('/pool/?id=' + uuid2)
+      .delete('/poll/?id=' + uuid2)
       .set('Cookie', [newPool.headers['set-cookie'][0].split(';')[0]]);
 
     expect(updatedPool.status).toEqual(HttpStatus.NO_CONTENT);
   });
 
-  it('should be able to get pool results', async () => {
-    const poolResults = await request(app.getHttpServer()).get(
+  it('should be able to get poll results', async () => {
+    const pollResults = await request(app.getHttpServer()).get(
       '/result/?id=' + uuid2,
     );
 
-    expect(poolResults.body).toHaveLength(2);
+    expect(pollResults.body).toHaveLength(2);
   });
 
-  it('should be able to get all user pools', async () => {
+  it('should be able to get all user polls', async () => {
     const body = {
       options: ['opt1', 'opt2'],
       question: 'question question?',
     };
 
-    const newPool = await request(app.getHttpServer()).post('/pool').send(body);
+    const newPool = await request(app.getHttpServer()).post('/poll').send(body);
 
-    const pools = await request(app.getHttpServer())
-      .get('/pools')
+    const polls = await request(app.getHttpServer())
+      .get('/polls')
       .set('Cookie', [newPool.headers['set-cookie'][0].split(';')[0]]);
 
-    expect(pools.body).toHaveLength(2);
+    expect(polls.body).toHaveLength(2);
   });
 
   it('should get an empty array when there is no cookie', async () => {
-    const poolsError = await request(app.getHttpServer()).get('/pools');
-    expect(poolsError.body.message).toEqual('User not found');
+    const pollsError = await request(app.getHttpServer()).get('/polls');
+    expect(pollsError.body.message).toEqual('User not found');
   });
 });

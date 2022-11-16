@@ -7,7 +7,7 @@ import { PrismaService } from '../services/prisma.service';
 import { VoteService } from '../services/vote.service';
 import { VoteController } from './vote.controller';
 
-describe('Pool controller', () => {
+describe('Poll controller', () => {
   let app: INestApplication;
 
   beforeEach(async () => {

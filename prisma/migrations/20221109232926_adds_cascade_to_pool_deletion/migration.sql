@@ -1,5 +1,5 @@
 -- DropForeignKey
-ALTER TABLE "vote" DROP CONSTRAINT "vote_poolId_fkey";
+ALTER TABLE "vote" DROP CONSTRAINT "vote_pollId_fkey";
 
 -- AddForeignKey
-ALTER TABLE "vote" ADD CONSTRAINT "vote_poolId_fkey" FOREIGN KEY ("poolId") REFERENCES "pool"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "vote" ADD CONSTRAINT "vote_pollId_fkey" FOREIGN KEY ("pollId") REFERENCES "poll"("id") ON DELETE CASCADE ON UPDATE CASCADE;

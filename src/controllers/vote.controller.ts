@@ -33,7 +33,7 @@ export class VoteController {
 
     try {
       const vote = await this.voteService.createVote({
-        poolId: query.id,
+        pollId: query.id,
         voteOption: option,
         voterToken: userToken,
       });
@@ -58,7 +58,7 @@ export class VoteController {
     }
 
     const userVote = await this.voteService.getUserVote({
-      poolId: query.id,
+      pollId: query.id,
       voterToken: userToken,
     });
 

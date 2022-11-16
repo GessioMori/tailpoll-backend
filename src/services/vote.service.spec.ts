@@ -30,7 +30,7 @@ describe('Vote service', () => {
   afterAll(async () => await app.close());
 
   it('should create a new vote for unidentified user', async () => {
-    const vote = await voteService.createVote({ poolId: uuid4, voteOption: 1 });
+    const vote = await voteService.createVote({ pollId: uuid4, voteOption: 1 });
 
     expect(vote.id).toEqual(uuid3);
     expect(vote.voterToken).toEqual(uuid2);
@@ -39,33 +39,33 @@ describe('Vote service', () => {
   it('should not vote on unvalid option', async () => {
     expect(
       async () =>
-        await voteService.createVote({ poolId: uuid4, voteOption: 2 }),
+        await voteService.createVote({ pollId: uuid4, voteOption: 2 }),
     ).rejects.toThrowError('Invalid option.');
   });
 
-  it('should not vote in a closed pool', async () => {
+  it('should not vote in a closed poll', async () => {
     expect(
       async () =>
-        await voteService.createVote({ poolId: uuid2, voteOption: 1 }),
-    ).rejects.toThrowError('Pool already ended.');
+        await voteService.createVote({ pollId: uuid2, voteOption: 1 }),
+    ).rejects.toThrowError('Poll already ended.');
   });
 
-  it('should not accept pool creator vote', async () => {
+  it('should not accept poll creator vote', async () => {
     expect(
       async () =>
         await voteService.createVote({
-          poolId: uuid4,
+          pollId: uuid4,
           voteOption: 1,
           voterToken: uuid1,
         }),
-    ).rejects.toThrowError('Pool creator can not vote.');
+    ).rejects.toThrowError('Poll creator can not vote.');
   });
 
   it('should not accept repeated voter', async () => {
     expect(
       async () =>
         await voteService.createVote({
-          poolId: uuid4,
+          pollId: uuid4,
           voteOption: 1,
           voterToken: uuid2,
         }),

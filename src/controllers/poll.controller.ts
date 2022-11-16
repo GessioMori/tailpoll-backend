@@ -13,16 +13,16 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { PoolService } from '../services/pool.service';
+import { PoolService } from '../services/poll.service';
 import { cookieConfig } from '../utils/cookieConfig';
-import { CreatePoolDto, PoolSchema } from './dto/pool.dto';
+import { CreatePoolDto, PoolSchema } from './dto/poll.dto';
 import { ValidatorPipe } from './validation.pipe';
 
 @Controller()
 export class PoolController {
-  constructor(private readonly poolService: PoolService) {}
+  constructor(private readonly pollService: PoolService) {}
 
-  @Post('pool')
+  @Post('poll')
   @UsePipes(new ValidatorPipe(PoolSchema))
   async createPool(
     @Body()
@@ -33,7 +33,7 @@ export class PoolController {
     const { question, options, endsAt } = createPoolDto;
     const { userToken } = request.signedCookies;
 
-    const newPool = await this.poolService.createPool({
+    const newPool = await this.pollService.createPool({
       creatorToken: userToken,
       options,
       question,
@@ -47,18 +47,18 @@ export class PoolController {
     return newPool;
   }
 
-  @Get('pool')
+  @Get('poll')
   @UsePipes(new ValidatorPipe())
   async getPool(@Query() query: { id: string }, @Req() request: Request) {
-    const pool = await this.poolService.getPool({ poolId: query.id });
+    const poll = await this.pollService.getPool({ pollId: query.id });
 
-    if (!pool) {
+    if (!poll) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
     }
 
     return {
-      pool,
-      isOwner: pool?.creatorToken === request.signedCookies.userToken,
+      poll,
+      isOwner: poll?.creatorToken === request.signedCookies.userToken,
     };
   }
 
@@ -66,21 +66,21 @@ export class PoolController {
   @UsePipes(new ValidatorPipe())
   async getResults(@Query() query: { id: string }) {
     try {
-      const results = await this.poolService.getResults({ poolId: query.id });
+      const results = await this.pollService.getResults({ pollId: query.id });
       return results;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
-  @Patch('pool')
+  @Patch('poll')
   @UsePipes(new ValidatorPipe())
   async endPool(@Query() query: { id: string }, @Req() request: Request) {
     const { userToken } = request.signedCookies;
 
     try {
-      const updatedPool = await this.poolService.endPool({
-        poolId: query.id,
+      const updatedPool = await this.pollService.endPool({
+        pollId: query.id,
         userToken,
       });
 
@@ -90,7 +90,7 @@ export class PoolController {
     }
   }
 
-  @Delete('pool')
+  @Delete('poll')
   @UsePipes(new ValidatorPipe())
   async deletePool(
     @Query() query: { id: string },
@@ -100,8 +100,8 @@ export class PoolController {
     const { userToken } = request.signedCookies;
 
     try {
-      await this.poolService.deletePool({
-        poolId: query.id,
+      await this.pollService.deletePool({
+        pollId: query.id,
         userToken,
       });
 
@@ -111,7 +111,7 @@ export class PoolController {
     }
   }
 
-  @Get('pools')
+  @Get('polls')
   async getUserPools(@Req() request: Request) {
     const { userToken } = request.signedCookies;
 
@@ -120,9 +120,9 @@ export class PoolController {
     }
 
     try {
-      const pools = await this.poolService.getUserPools({ userToken });
+      const polls = await this.pollService.getUserPools({ userToken });
 
-      return pools;
+      return polls;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

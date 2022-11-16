@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { PoolController } from './controllers/pool.controller';
+import { PoolController } from './controllers/poll.controller';
 import { VoteController } from './controllers/vote.controller';
-import { PoolService } from './services/pool.service';
+import { PoolService } from './services/poll.service';
 import { PrismaService } from './services/prisma.service';
 import { VoteService } from './services/vote.service';
 

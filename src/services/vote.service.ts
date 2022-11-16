@@ -6,35 +6,35 @@ export class VoteService {
   constructor(private prisma: PrismaService) {}
 
   async createVote(params: {
-    poolId: string;
+    pollId: string;
     voteOption: number;
     voterToken?: string;
   }) {
-    const { poolId, voteOption, voterToken } = params;
+    const { pollId, voteOption, voterToken } = params;
 
-    const pool = await this.prisma.pool.findUnique({
+    const poll = await this.prisma.poll.findUnique({
       where: {
-        id: poolId,
+        id: pollId,
       },
     });
 
-    if (!pool) {
-      throw new Error('Pool not found.');
-    } else if (pool.options.length - 1 < voteOption) {
+    if (!poll) {
+      throw new Error('Poll not found.');
+    } else if (poll.options.length - 1 < voteOption) {
       throw new Error('Invalid option.');
-    } else if (pool.endsAt && pool.endsAt.getTime() < new Date().getTime()) {
-      throw new Error('Pool already ended.');
+    } else if (poll.endsAt && poll.endsAt.getTime() < new Date().getTime()) {
+      throw new Error('Poll already ended.');
     }
 
     if (voterToken) {
-      if (pool.creatorToken === voterToken) {
-        throw new Error('Pool creator can not vote.');
+      if (poll.creatorToken === voterToken) {
+        throw new Error('Poll creator can not vote.');
       }
 
       const hasAlreadyVoted = await this.prisma.vote.findUnique({
         where: {
-          voterToken_poolId: {
-            poolId,
+          voterToken_pollId: {
+            pollId,
             voterToken,
           },
         },
@@ -46,7 +46,7 @@ export class VoteService {
 
     const vote = await this.prisma.vote.create({
       data: {
-        poolId,
+        pollId,
         option: voteOption,
         voterToken,
       },
@@ -55,13 +55,13 @@ export class VoteService {
     return vote;
   }
 
-  async getUserVote(params: { voterToken: string; poolId: string }) {
-    const { voterToken, poolId } = params;
+  async getUserVote(params: { voterToken: string; pollId: string }) {
+    const { voterToken, pollId } = params;
 
     const vote = await this.prisma.vote.findUnique({
       where: {
-        voterToken_poolId: {
-          poolId,
+        voterToken_pollId: {
+          pollId,
           voterToken,
         },
       },
@@ -78,7 +78,7 @@ export class VoteService {
         voterToken: userToken,
       },
       include: {
-        pool: true,
+        poll: true,
       },
     });
 
